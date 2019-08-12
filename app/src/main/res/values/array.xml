@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ringtones">
+        <item>Default</item>
+        <item>Oreo</item>
+        <item>Twix</item>
+        <item>Old Phone</item>
+        <item>Galaxy</item>
+        <item>Tribal</item>
+        <item>Forest</item>
+    </string-array>
+
+</resources>

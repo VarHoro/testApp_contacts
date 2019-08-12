@@ -10,10 +10,18 @@
     <string name="empty_not_saved">Contact not saved because it is empty.</string>
 
     <string name="ringtone_text_view">Ringtone</string>
-    <string name="ringtone_name_text_view">Old Phone</string>
+    <string name="ringtone_name_text_view">Default</string>
 
     <string name="note_text_view">Note</string>
     <string name="note_name_text_view">---</string>
 
     <string name="edit">Edit</string>
+
+    <string name="select_ringtone">Select ringtone</string>
+    <string name="add_note">Add note</string>
+    <string name="cancel">Cancel</string>
+    <string name="select">Select</string>
+    <string name="accept">Accept</string>
+
+    <string name="text_here">Text here</string>
 </resources>

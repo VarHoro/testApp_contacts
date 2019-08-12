@@ -50,8 +50,8 @@ class ContactsActivity : AppCompatActivity() {
                 val contact = Contact(
                     it.getStringExtra(OneContactActivity.EXTRA_REPLY),
                     it.getStringExtra(OneContactActivity.EXTRA_PHONE),
-                    "",
-                    "")
+                    it.getStringExtra(OneContactActivity.EXTRA_RING),
+                    it.getStringExtra(OneContactActivity.EXTRA_NOTE))
                 viewModel.insert(contact)
             }
         } else {

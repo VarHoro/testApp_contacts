@@ -23,6 +23,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    dataBinding{
+        enabled = true
+    }
 }
 
 dependencies {
@@ -45,8 +48,8 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.9.0'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
 
-    implementation "androidx.room:room-runtime:2.1.0-alpha06"
-    implementation "androidx.room:room-ktx:2.1.0-alpha06"
-    kapt "androidx.room:room-compiler:2.1.0-alpha06"
+    implementation "androidx.room:room-runtime:2.2.0-alpha02"
+    implementation "androidx.room:room-ktx:2.2.0-alpha02"
+    kapt "androidx.room:room-compiler:2.2.0-alpha02"
     implementation 'androidx.cardview:cardview:1.0.0'
 }

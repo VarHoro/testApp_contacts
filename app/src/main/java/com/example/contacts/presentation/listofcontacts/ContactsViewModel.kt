@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
-class ContactsViewModel(application: Application) : AndroidViewModel(application){
+class ContactsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: ContactRepository
     val allContacts: LiveData<List<Contact>>
@@ -25,9 +25,10 @@ class ContactsViewModel(application: Application) : AndroidViewModel(application
         allContacts = repository.allContacts
     }
 
-    fun insert(contact: Contact){
+    fun insert(contact: Contact) {
         scope.launch {
             repository.insert(contact)
         }
     }
+
 }
