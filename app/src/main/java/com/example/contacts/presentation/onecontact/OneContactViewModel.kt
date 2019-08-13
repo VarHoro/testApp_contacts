@@ -1,9 +1,13 @@
 package com.example.contacts.presentation.onecontact
 
 import android.app.Application
+import android.graphics.Bitmap
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.example.contacts.domain.ContactModel
 import com.example.contacts.domain.Interactor
 import org.koin.core.KoinComponent
@@ -21,17 +25,26 @@ class OneContactViewModel(application: Application) : AndroidViewModel(applicati
     val noteText = ObservableField<String>("")
     val ringtoneText = ObservableField<String>("Default")
 
-    private lateinit var contactModel: ContactModel
+    private lateinit var contactModel: LiveData<ContactModel>
+    private lateinit var observer: Observer<ContactModel>
 
-    fun getByPhone(getPhone: String): ContactModel {
+    fun getByPhone(getPhone: String) {
         contactModel = interactor.getByPhone(getPhone)
-        firstNameText.set(contactModel.firstName)
-        secondNameText.set(contactModel.secondName)
-        phoneText.set(contactModel.phone)
-        noteText.set(contactModel.note)
-        ringtoneText.set(contactModel.ringtone)
-        isExistingContact.set(true)
-        return contactModel
+        observer = Observer { contactModel ->
+            firstNameText.set(contactModel.firstName)
+            secondNameText.set(contactModel.secondName)
+            phoneText.set(contactModel.phone)
+            noteText.set(contactModel.note)
+            ringtoneText.set(contactModel.ringtone)
+            isExistingContact.set(true)
+            dataReceived()
+        }
+        contactModel.observeForever(observer)
+
+    }
+
+    private fun dataReceived() {
+        contactModel.removeObserver(observer)
     }
 
     fun update() {
@@ -42,9 +55,15 @@ class OneContactViewModel(application: Application) : AndroidViewModel(applicati
             note = noteText.get(),
             ringtone = ringtoneText.get()
         )
-        if (contactModel != contact) {
+        if (contactModel.value != contact) {
             interactor.update(contact)
         }
     }
 
+    fun delete() {
+        val model: ContactModel? = contactModel.value
+        if (model != null) {
+            interactor.delete(model)
+        }
+    }
 }

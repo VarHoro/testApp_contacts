@@ -3,20 +3,26 @@ package com.example.contacts.presentation.onecontact
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
+import androidx.core.graphics.drawable.toBitmap
 import androidx.databinding.DataBindingUtil
+import com.bumptech.glide.Glide
 import com.example.contacts.R
 import com.example.contacts.databinding.ActivityOnecontactBinding
 import com.example.contacts.presentation.listofcontacts.ContactListAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.android.synthetic.main.activity_onecontact.*
+import kotlinx.android.synthetic.main.bottom_sheet.*
 import kotlinx.android.synthetic.main.contact_item.*
 import org.koin.android.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
@@ -42,7 +48,23 @@ class OneContactActivity : AppCompatActivity() {
 
         image_view.setOnClickListener {
             val view = layoutInflater.inflate(R.layout.bottom_sheet, null)
+            val takePhoto = view.findViewById<TextView>(R.id.take_photo)
+            val choosePhoto = view.findViewById<TextView>(R.id.choose_photo)
             val dialog = BottomSheetDialog(this)
+            takePhoto.setOnClickListener {
+                Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+                    takePictureIntent.resolveActivity(packageManager)?.also {
+                        dialog.dismiss()
+                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+                    }
+                }
+            }
+            choosePhoto.setOnClickListener {
+                val choosePhotoIntent = Intent(Intent.ACTION_PICK)
+                choosePhotoIntent.type = "image/*"
+                dialog.dismiss()
+                startActivityForResult(choosePhotoIntent, REQUEST_IMAGE_CHOOSE)
+            }
             dialog.setContentView(view)
             dialog.show()
         }
@@ -88,6 +110,40 @@ class OneContactActivity : AppCompatActivity() {
                 }
             builder.show()
         }
+
+        //delete contact
+        delete_button.setOnClickListener {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle(R.string.delete)
+                .setMessage(R.string.are_you_sure)
+                .setPositiveButton(R.string.delete) { dialogInterface, _ ->
+                    viewModel.delete()
+                    dialogInterface.dismiss()
+                    finish()
+                }
+                .setNegativeButton(R.string.cancel) { dialogInterface, _ ->
+                    dialogInterface.dismiss()
+                }
+                .show()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                REQUEST_IMAGE_CAPTURE -> {
+                    Glide.with(this)
+                        .load(data?.extras?.get("data"))
+                        .into(image_view)
+                }
+                REQUEST_IMAGE_CHOOSE -> {
+                    Glide.with(this)
+                        .load(data?.data)
+                        .into(image_view)
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -141,6 +197,9 @@ class OneContactActivity : AppCompatActivity() {
         const val EXTRA_PHONE = "com.example.contacts.presentation.onecontact.PHONE"
         const val EXTRA_RING = "com.example.contacts.presentation.onecontact.RING"
         const val EXTRA_NOTE = "com.example.contacts.presentation.onecontact.NOTE"
+        const val EXTRA_IMG = "com.example.contacts.presentation.onecontact.IMG"
+        const val REQUEST_IMAGE_CAPTURE = 1
+        const val REQUEST_IMAGE_CHOOSE = 2
     }
 }
 

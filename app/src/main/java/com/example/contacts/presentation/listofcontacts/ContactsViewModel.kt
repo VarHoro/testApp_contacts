@@ -3,6 +3,7 @@ package com.example.contacts.presentation.listofcontacts
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.example.contacts.data.Contact
 import com.example.contacts.data.ContactRepository
 import com.example.contacts.data.ContactsRoomDatabase
@@ -19,9 +20,9 @@ import org.koin.core.parameter.parametersOf
 class ContactsViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
 
     private val interactor: Interactor by inject{ parametersOf(application)}
-    lateinit var allContacts: LiveData<ArrayList<ContactModel>>
+    var allContacts: LiveData<ArrayList<ContactModel>>
 
-    fun observeData(){
+    init {
         allContacts = interactor.getData()
     }
 

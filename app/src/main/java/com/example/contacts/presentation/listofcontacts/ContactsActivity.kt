@@ -40,7 +40,6 @@ class ContactsActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         //update adapter if contacts changed
-        viewModel.observeData()
         viewModel.allContacts.observe(this, Observer{contacts ->
             contacts?.let { adapter.setContacts(it) }
         })
@@ -55,7 +54,7 @@ class ContactsActivity : AppCompatActivity() {
                 val contact = ContactModel(
                     firstName = it.getStringExtra(OneContactActivity.EXTRA_FNAME),
                     secondName = it.getStringExtra(OneContactActivity.EXTRA_SNAME),
-                    phone = it.getStringExtra(OneContactActivity.EXTRA_PHONE),
+                    phone = it.getStringExtra(OneContactActivity.EXTRA_PHONE) ?: "",
                     ringtone = it.getStringExtra(OneContactActivity.EXTRA_RING),
                     note = it.getStringExtra(OneContactActivity.EXTRA_NOTE))
                 viewModel.insert(contact)

@@ -76,57 +76,76 @@ class ContactListAdapter internal constructor(private val context: Context) :
     }
 
     internal fun setContacts(contact: List<ContactModel>) {
-
         var currentLetter = getFirstLetter(contact[0])
 
-        for (i in 0 until contact.size - 1) {
-            if (i == 0) {
-                contacts.add(
-                    AdapterModel(
-                        isContact = false,
-                        name = null,
-                        phone = null,
-                        letter = currentLetter
-                    )
+        if (contact.size == 1) {
+            contacts.add(
+                AdapterModel(
+                    isContact = false,
+                    name = null,
+                    phone = null,
+                    letter = currentLetter
                 )
-            }
-            if (currentLetter != getFirstLetter(contact[i+1])) {
-                contacts.add(
-                    AdapterModel(
-                        isContact = true,
-                        name = contact[i].firstName.plus(' ').plus(contact[i].secondName),
-                        phone = contact[i].phone,
-                        letter = null
-                    )
-                )
-                currentLetter = getFirstLetter(contact[i+1])
-                contacts.add(
-                    AdapterModel(
-                        isContact = false,
-                        name = null,
-                        phone = null,
-                        letter = currentLetter
-                    )
-                )
-            } else {
-                contacts.add(
-                    AdapterModel(
-                        isContact = true,
-                        name = contact[i].firstName.plus(' ').plus(contact[i].secondName),
-                        phone = contact[i].phone,
-                        letter = null
-                    )
-                )
-            }
-        }
-        contacts.add(
-            AdapterModel(
-                isContact = true,
-                name = contact[contact.size - 1].firstName.plus(' ').plus(contact[contact.size - 1].secondName),
-                phone = contact[contact.size - 1].phone,
-                letter = null
             )
-        )
+            contacts.add(
+                AdapterModel(
+                    isContact = true,
+                    name = contact[0].firstName.plus(' ').plus(contact[0].secondName),
+                    phone = contact[0].phone,
+                    letter = null
+                )
+            )
+        } else {
+
+            for (i in 0 until contact.size - 1) {
+                if (i == 0) {
+                    contacts.add(
+                        AdapterModel(
+                            isContact = false,
+                            name = null,
+                            phone = null,
+                            letter = currentLetter
+                        )
+                    )
+                }
+                if (currentLetter != getFirstLetter(contact[i + 1])) {
+                    contacts.add(
+                        AdapterModel(
+                            isContact = true,
+                            name = contact[i].firstName.plus(' ').plus(contact[i].secondName),
+                            phone = contact[i].phone,
+                            letter = null
+                        )
+                    )
+                    currentLetter = getFirstLetter(contact[i + 1])
+                    contacts.add(
+                        AdapterModel(
+                            isContact = false,
+                            name = null,
+                            phone = null,
+                            letter = currentLetter
+                        )
+                    )
+                } else {
+                    contacts.add(
+                        AdapterModel(
+                            isContact = true,
+                            name = contact[i].firstName.plus(' ').plus(contact[i].secondName),
+                            phone = contact[i].phone,
+                            letter = null
+                        )
+                    )
+                }
+            }
+            contacts.add(
+                AdapterModel(
+                    isContact = true,
+                    name = contact[contact.size - 1].firstName.plus(' ').plus(contact[contact.size - 1].secondName),
+                    phone = contact[contact.size - 1].phone,
+                    letter = null
+                )
+            )
+        }
         notifyDataSetChanged()
     }
 
