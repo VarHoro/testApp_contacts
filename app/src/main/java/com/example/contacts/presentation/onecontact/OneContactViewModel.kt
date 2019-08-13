@@ -1,45 +1,50 @@
 package com.example.contacts.presentation.onecontact
 
 import android.app.Application
+import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.AndroidViewModel
-import com.example.contacts.data.Contact
-import com.example.contacts.data.ContactRepository
-import com.example.contacts.data.ContactsRoomDatabase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import com.example.contacts.domain.ContactModel
+import com.example.contacts.domain.Interactor
+import org.koin.core.KoinComponent
+import org.koin.core.inject
+import org.koin.core.parameter.parametersOf
 
-class OneContactViewModel(application: Application): AndroidViewModel(application){
-    private val repository: ContactRepository
+class OneContactViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
 
-    private val job = SupervisorJob()
-    private val scope = CoroutineScope(Dispatchers.IO + job)
+    private val interactor: Interactor by inject { parametersOf(application) }
 
-    val firstName = ObservableField<String>("")
-    val secondName = ObservableField<String>("")
-    val phone = ObservableField<String>("")
-    val note = ObservableField<String>("")
-    val ringtone = ObservableField<String>("Default")
+    val isExistingContact = ObservableBoolean(false)
+    val firstNameText = ObservableField<String>("")
+    val secondNameText = ObservableField<String>("")
+    val phoneText = ObservableField<String>("")
+    val noteText = ObservableField<String>("")
+    val ringtoneText = ObservableField<String>("Default")
 
-    var contact =  Contact("", "", null, null)
+    private lateinit var contactModel: ContactModel
 
-    init {
-        val contactDao = ContactsRoomDatabase.getDatabase(application, scope).contactDao()
-        repository = ContactRepository(contactDao)
+    fun getByPhone(getPhone: String): ContactModel {
+        contactModel = interactor.getByPhone(getPhone)
+        firstNameText.set(contactModel.firstName)
+        secondNameText.set(contactModel.secondName)
+        phoneText.set(contactModel.phone)
+        noteText.set(contactModel.note)
+        ringtoneText.set(contactModel.ringtone)
+        isExistingContact.set(true)
+        return contactModel
     }
 
-    fun getByName(name: String): Contact {
-        scope.launch {
-            contact = repository.selectByName(name)
-            firstName.set(contact.name)
-            secondName.set(contact.name)
-            phone.set(contact.phone)
-            note.set(contact.note)
-            ringtone.set(contact.ringtone)
+    fun update() {
+        val contact = ContactModel(
+            firstName = firstNameText.get(),
+            secondName = secondNameText.get(),
+            phone = phoneText.get() ?: "",
+            note = noteText.get(),
+            ringtone = ringtoneText.get()
+        )
+        if (contactModel != contact) {
+            interactor.update(contact)
         }
-        return contact
     }
 
 }

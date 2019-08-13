@@ -9,12 +9,13 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.contacts.R
-import com.example.contacts.data.Contact
+import com.example.contacts.domain.ContactModel
 import com.example.contacts.presentation.onecontact.OneContactActivity
+import org.koin.android.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 class ContactsActivity : AppCompatActivity() {
 
@@ -22,21 +23,24 @@ class ContactsActivity : AppCompatActivity() {
         const val newContactActivityRequestCode = 1
     }
 
-    private lateinit var viewModel : ContactsViewModel
+    private val viewModel : ContactsViewModel by viewModel { parametersOf(this.application) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_contacts)
 
+        //toolbar
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
+        //list of contacts in recycler view
         val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
         val adapter = ContactListAdapter(this)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        viewModel = ViewModelProviders.of(this).get(ContactsViewModel::class.java)
+        //update adapter if contacts changed
+        viewModel.observeData()
         viewModel.allContacts.observe(this, Observer{contacts ->
             contacts?.let { adapter.setContacts(it) }
         })
@@ -45,13 +49,15 @@ class ContactsActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
+        //create new contact from result
         if (requestCode == newContactActivityRequestCode && resultCode == Activity.RESULT_OK){
             data?.let {
-                val contact = Contact(
-                    it.getStringExtra(OneContactActivity.EXTRA_REPLY),
-                    it.getStringExtra(OneContactActivity.EXTRA_PHONE),
-                    it.getStringExtra(OneContactActivity.EXTRA_RING),
-                    it.getStringExtra(OneContactActivity.EXTRA_NOTE))
+                val contact = ContactModel(
+                    firstName = it.getStringExtra(OneContactActivity.EXTRA_FNAME),
+                    secondName = it.getStringExtra(OneContactActivity.EXTRA_SNAME),
+                    phone = it.getStringExtra(OneContactActivity.EXTRA_PHONE),
+                    ringtone = it.getStringExtra(OneContactActivity.EXTRA_RING),
+                    note = it.getStringExtra(OneContactActivity.EXTRA_NOTE))
                 viewModel.insert(contact)
             }
         } else {
@@ -74,4 +80,5 @@ class ContactsActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
+
 }
