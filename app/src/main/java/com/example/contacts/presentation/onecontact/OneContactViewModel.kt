@@ -1,10 +1,8 @@
 package com.example.contacts.presentation.onecontact
 
 import android.app.Application
-import android.graphics.Bitmap
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import androidx.databinding.ObservableInt
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -19,12 +17,12 @@ class OneContactViewModel(application: Application) : AndroidViewModel(applicati
     private val interactor: Interactor by inject { parametersOf(application) }
 
     val isExistingContact = ObservableBoolean(false)
-    val imageText = ObservableField<String>("")
-    val firstNameText = ObservableField<String>("")
-    val secondNameText = ObservableField<String>("")
-    val phoneText = ObservableField<String>("")
-    val noteText = ObservableField<String>("")
-    val ringtoneText = ObservableField<String>("Default")
+    val imageText = ObservableField("")
+    val firstNameText = ObservableField("")
+    val secondNameText = ObservableField("")
+    val phoneText = ObservableField("")
+    val noteText = ObservableField("")
+    val ringtoneText = ObservableField("Default")
 
     private lateinit var contactModel: LiveData<ContactModel>
     private lateinit var observer: Observer<ContactModel>

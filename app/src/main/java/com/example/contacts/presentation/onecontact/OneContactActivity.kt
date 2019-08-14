@@ -4,8 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.Bitmap
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
@@ -19,22 +17,17 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import androidx.core.graphics.drawable.toBitmap
 import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
 import com.example.contacts.R
 import com.example.contacts.databinding.ActivityOnecontactBinding
 import com.example.contacts.presentation.listofcontacts.ContactListAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.android.synthetic.*
 import kotlinx.android.synthetic.main.activity_onecontact.*
-import kotlinx.android.synthetic.main.bottom_sheet.*
-import kotlinx.android.synthetic.main.contact_item.*
 import org.koin.android.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import java.io.File
 import java.io.IOException
-import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -110,10 +103,10 @@ class OneContactActivity : AppCompatActivity() {
             val inflater = LayoutInflater.from(this)
             val view = inflater.inflate(R.layout.note_dialog, null)
             val note = view.findViewById<EditText>(R.id.note_edit_text)
-            if (!viewModel.noteText.get().isNullOrEmpty()){
+            if (!viewModel.noteText.get().isNullOrEmpty()) {
                 note.setText(viewModel.noteText.get())
             }
-                builder.setTitle(R.string.add_note).setView(view)
+            builder.setTitle(R.string.add_note).setView(view)
             builder.setNegativeButton(R.string.cancel) { dialogInterface, _ -> dialogInterface.dismiss() }
                 .setPositiveButton(R.string.select) { dialogInterface, _ ->
                     if (note != null) {
