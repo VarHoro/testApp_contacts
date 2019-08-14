@@ -76,6 +76,7 @@ class ContactListAdapter internal constructor(private val context: Context) :
     }
 
     internal fun setContacts(contact: List<ContactModel>) {
+        contacts.clear()
         var currentLetter = getFirstLetter(contact[0])
 
         if (contact.size == 1) {

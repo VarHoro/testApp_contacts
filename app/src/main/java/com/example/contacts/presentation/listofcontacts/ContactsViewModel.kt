@@ -17,9 +17,10 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.koin.core.parameter.parametersOf
 
-class ContactsViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
+class ContactsViewModel(application: Application) : AndroidViewModel(application),
+    KoinComponent {
 
-    private val interactor: Interactor by inject{ parametersOf(application)}
+    private val interactor: Interactor by inject { parametersOf(application) }
     var allContacts: LiveData<ArrayList<ContactModel>>
 
     init {
@@ -29,5 +30,4 @@ class ContactsViewModel(application: Application) : AndroidViewModel(application
     fun insert(contact: ContactModel) {
         interactor.insert(contact)
     }
-
 }

@@ -23,7 +23,7 @@ class ContactsActivity : AppCompatActivity() {
         const val newContactActivityRequestCode = 1
     }
 
-    private val viewModel : ContactsViewModel by viewModel { parametersOf(this.application) }
+    private val viewModel: ContactsViewModel by viewModel { parametersOf(this.application) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,8 +40,11 @@ class ContactsActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         //update adapter if contacts changed
-        viewModel.allContacts.observe(this, Observer{contacts ->
-            contacts?.let { adapter.setContacts(it) }
+        viewModel.allContacts.observe(this, Observer { contacts ->
+            if (contacts != null) {
+                adapter.setContacts(contacts)
+                println("adapter ${contacts[0].firstName}")
+            }
         })
     }
 
@@ -49,14 +52,15 @@ class ContactsActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         //create new contact from result
-        if (requestCode == newContactActivityRequestCode && resultCode == Activity.RESULT_OK){
+        if (requestCode == newContactActivityRequestCode && resultCode == Activity.RESULT_OK) {
             data?.let {
                 val contact = ContactModel(
                     firstName = it.getStringExtra(OneContactActivity.EXTRA_FNAME),
                     secondName = it.getStringExtra(OneContactActivity.EXTRA_SNAME),
                     phone = it.getStringExtra(OneContactActivity.EXTRA_PHONE) ?: "",
                     ringtone = it.getStringExtra(OneContactActivity.EXTRA_RING),
-                    note = it.getStringExtra(OneContactActivity.EXTRA_NOTE))
+                    note = it.getStringExtra(OneContactActivity.EXTRA_NOTE)
+                )
                 viewModel.insert(contact)
             }
         } else {
@@ -65,8 +69,8 @@ class ContactsActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId){
-            R.id.action_add ->{
+        when (item.itemId) {
+            R.id.action_add -> {
                 val intent = Intent(this@ContactsActivity, OneContactActivity::class.java)
                 startActivityForResult(intent, newContactActivityRequestCode)
             }

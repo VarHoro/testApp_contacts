@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".presentation.listofcontacts.ContactsActivity">
+    <item
+            android:id="@+id/action_add"
+            android:orderInCategory="100"
+            android:title="@string/add"
+            android:icon="@drawable/ic_add_black_24dp"
+            app:showAsAction="ifRoom"
+    />
+    <item
+            android:id="@+id/action_search"
+            android:title="@string/search"
+            android:icon="@drawable/ic_search_black_24dp"
+            app:actionViewClass="android.widget.SearchView"
+            app:showAsAction="ifRoom|collapseActionView"
+    />
+</menu>
