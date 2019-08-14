@@ -5,6 +5,7 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.example.contacts.domain.ContactModel
 import com.example.contacts.domain.Interactor
@@ -27,7 +28,9 @@ class OneContactViewModel(application: Application) : AndroidViewModel(applicati
     private lateinit var contactModel: LiveData<ContactModel>
     private lateinit var observer: Observer<ContactModel>
 
-    fun getByPhone(getPhone: String) {
+    fun getByPhone(getPhone: String): LiveData<Boolean> {
+        val liveData = MutableLiveData<Boolean>()
+        liveData.postValue(false)
         contactModel = interactor.getByPhone(getPhone)
         observer = Observer { contactModel ->
             imageText.set(contactModel.image)
@@ -37,10 +40,23 @@ class OneContactViewModel(application: Application) : AndroidViewModel(applicati
             noteText.set(contactModel.note)
             ringtoneText.set(contactModel.ringtone)
             isExistingContact.set(true)
+            liveData.postValue(true)
             dataReceived()
         }
         contactModel.observeForever(observer)
+        return liveData
+    }
 
+    fun insert() {
+        val contact = ContactModel(
+            firstName = firstNameText.get(),
+            secondName = secondNameText.get(),
+            phone = phoneText.get().toString(),
+            ringtone = ringtoneText.get(),
+            image = imageText.get(),
+            note = noteText.get()
+        )
+        interactor.insert(contact)
     }
 
     private fun dataReceived() {

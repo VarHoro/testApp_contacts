@@ -19,7 +19,4 @@ class ContactsViewModel(application: Application) : AndroidViewModel(application
         allContacts = interactor.getData()
     }
 
-    fun insert(contact: ContactModel) {
-        interactor.insert(contact)
-    }
 }

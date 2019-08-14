@@ -1,9 +1,11 @@
 package com.example.contacts.presentation.listofcontacts
 
+import android.Manifest
 import android.app.Activity
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -11,6 +13,7 @@ import android.view.MenuItem
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,6 +37,7 @@ class ContactsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_contacts)
 
+        requestPermission()
         //toolbar
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -52,25 +56,16 @@ class ContactsActivity : AppCompatActivity() {
         })
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+    private fun requestPermission(){
+        val permissionWrite = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        val permissionRead = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
 
-        //create new contact from result
-        if (requestCode == newContactActivityRequestCode && resultCode == Activity.RESULT_OK) {
-            data?.let {
-                val contact = ContactModel(
-                    image = it.getStringExtra(OneContactActivity.EXTRA_IMG),
-                    firstName = it.getStringExtra(OneContactActivity.EXTRA_FNAME),
-                    secondName = it.getStringExtra(OneContactActivity.EXTRA_SNAME),
-                    phone = it.getStringExtra(OneContactActivity.EXTRA_PHONE) ?: "",
-                    ringtone = it.getStringExtra(OneContactActivity.EXTRA_RING),
-                    note = it.getStringExtra(OneContactActivity.EXTRA_NOTE)
-                )
-                println(contact.image)
-                viewModel.insert(contact)
-            }
-        } else {
-            Toast.makeText(applicationContext, R.string.empty_not_saved, Toast.LENGTH_LONG).show()
+        if (permissionRead != PackageManager.PERMISSION_GRANTED || permissionWrite != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
+                OneContactActivity.REQUEST_PERMISSION
+            )
         }
     }
 
@@ -78,7 +73,7 @@ class ContactsActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.action_add -> {
                 val intent = Intent(this@ContactsActivity, OneContactActivity::class.java)
-                startActivityForResult(intent, newContactActivityRequestCode)
+                startActivity(intent)
             }
         }
 

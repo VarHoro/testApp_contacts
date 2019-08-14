@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
@@ -48,7 +47,17 @@ class OneContactActivity : AppCompatActivity() {
         if (bundle != null) {
             val phone = bundle.getString(ContactListAdapter.EXTRA_PHONE).toString()
             if (phone.isNotEmpty()) {
-                viewModel.getByPhone(phone)
+                val flag = viewModel.getByPhone(phone)
+                flag.observe(this, androidx.lifecycle.Observer {
+                    if (it) {
+                        currentPhotoPath = viewModel.imageText.get().toString()
+                        if (currentPhotoPath.isNotEmpty()) {
+                            Glide.with(this)
+                                .load(currentPhotoPath)
+                                .into(image_view)
+                        }
+                    }
+                })
             }
         }
 
@@ -134,6 +143,7 @@ class OneContactActivity : AppCompatActivity() {
         }
     }
 
+    //creating file for camera
     private fun dispatchTakePictureIntent() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         if (takePictureIntent.resolveActivity(packageManager) != null) {
@@ -171,12 +181,13 @@ class OneContactActivity : AppCompatActivity() {
             when (requestCode) {
                 REQUEST_IMAGE_CAPTURE -> {
                     Glide.with(this)
-                        .load(currentPhotoPath) //data?.extras?.get("data")
+                        .load(currentPhotoPath)
                         .into(image_view)
                 }
                 REQUEST_IMAGE_CHOOSE -> {
+                    currentPhotoPath = data?.data.toString()
                     Glide.with(this)
-                        .load(data?.data) //data?.data
+                        .load(currentPhotoPath)
                         .into(image_view)
                 }
             }
@@ -195,34 +206,15 @@ class OneContactActivity : AppCompatActivity() {
                 if (phone_edit_text.text.isEmpty()) {
                     Toast.makeText(this, R.string.phone_is_empty, Toast.LENGTH_LONG).show()
                 } else {
+                    //update info
                     if (viewModel.isExistingContact.get()) {
                         viewModel.imageText.set(currentPhotoPath)
-                        viewModel.firstNameText.set(first_name_edit_text.text.toString())
-                        viewModel.secondNameText.set(second_name_edit_view.text.toString())
-                        viewModel.ringtoneText.set(ringtone_text_view.text.toString())
-                        viewModel.phoneText.set(phone_edit_text.text.toString())
-                        viewModel.noteText.set(note_text_view.text.toString())
                         viewModel.update()
                         finish()
                     } else {
-                        val replyIntent = Intent()
-                        if (TextUtils.isEmpty(first_name_edit_text.text)) {
-                            setResult(Activity.RESULT_CANCELED, replyIntent)
-                        } else {
-                            val img = currentPhotoPath
-                            val fname = first_name_edit_text.text.toString()
-                            val sname = second_name_edit_view.text.toString()
-                            val phone = phone_edit_text.text.toString()
-                            val ringtone = ringtone_text_view.text.toString()
-                            val note = note_text_view.text.toString()
-                            replyIntent.putExtra(EXTRA_FNAME, fname)
-                                .putExtra(EXTRA_SNAME, sname)
-                                .putExtra(EXTRA_PHONE, phone)
-                                .putExtra(EXTRA_RING, ringtone)
-                                .putExtra(EXTRA_NOTE, note)
-                                .putExtra(EXTRA_IMG, img)
-                            setResult(Activity.RESULT_OK, replyIntent)
-                        }
+                        //send data for insert
+                        viewModel.imageText.set(currentPhotoPath)
+                        viewModel.insert()
                         finish()
                     }
                 }
@@ -233,14 +225,9 @@ class OneContactActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val EXTRA_FNAME = "com.example.contacts.presentation.onecontact.FNAME"
-        const val EXTRA_SNAME = "com.example.contacts.presentation.onecontact.SNAME"
-        const val EXTRA_PHONE = "com.example.contacts.presentation.onecontact.PHONE"
-        const val EXTRA_RING = "com.example.contacts.presentation.onecontact.RING"
-        const val EXTRA_NOTE = "com.example.contacts.presentation.onecontact.NOTE"
-        const val EXTRA_IMG = "com.example.contacts.presentation.onecontact.IMG"
         const val REQUEST_IMAGE_CAPTURE = 1
         const val REQUEST_IMAGE_CHOOSE = 2
+        const val REQUEST_PERMISSION = 123
     }
 }
 
