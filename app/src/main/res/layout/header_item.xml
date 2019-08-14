@@ -12,9 +12,13 @@
             android:id="@+id/header_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp" android:textColor="@color/colorTextDark" android:textStyle="bold"/>
+            android:padding="16dp"
+            android:textColor="@color/colorTextDark"
+            android:textStyle="bold"
+            android:background="@color/colorPrimary"/>
     <View
             android:background="@color/colorPrimaryDark"
             android:layout_width="match_parent"
-          android:layout_height="1dp"/>
+            android:layout_height="1dp"/>
+
 </LinearLayout>

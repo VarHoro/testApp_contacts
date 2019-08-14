@@ -11,8 +11,8 @@
             android:layout_height="wrap_content"
             android:maxLength="300"
             android:hint="@string/text_here"
-            android:inputType="text"
-            android:autofillHints="@string/text_here">
+            android:autofillHints="@string/text_here"
+            android:inputType="text">
         <requestFocus/>
     </EditText>
 

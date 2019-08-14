@@ -17,6 +17,14 @@ abstract class ContactsRoomDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: ContactsRoomDatabase? = null
 
+        private const val name = "Contacts"
+        private const val fName = "Emergency"
+        private const val sName = ""
+        private const val phone = "020"
+        private const val ringtone = "Default"
+        private const val note = "Only for extreme situations"
+        private const val image = ""
+
         fun getDatabase(context: Context, scope: CoroutineScope): ContactsRoomDatabase {
             val tempInstance = INSTANCE
             if (tempInstance != null) return tempInstance
@@ -25,7 +33,7 @@ abstract class ContactsRoomDatabase : RoomDatabase() {
                     Room.databaseBuilder(
                         context.applicationContext,
                         ContactsRoomDatabase::class.java,
-                        "Contacts"
+                        name
                     ).addCallback(ContactDatabaseCallBack(scope)).build()
                 INSTANCE = instance
                 return instance
@@ -44,7 +52,7 @@ abstract class ContactsRoomDatabase : RoomDatabase() {
         }
 
         suspend fun populateDatabase(contactDao: ContactDao) {
-            var contact = Contact("Emergency", "","020", "Default", "Only for extreme situations", "")
+            val contact = Contact(fName, sName, phone, ringtone, note, image)
             contactDao.insert(contact)
         }
     }

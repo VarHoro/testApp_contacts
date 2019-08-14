@@ -1,33 +1,37 @@
 <resources>
+    <!-- App name -->
     <string name="app_name">Contacts</string>
-    <string name="add">Add</string>
-    <string name="search">Search</string>
 
-    <string name="hint_first_name">First name</string>
-    <string name="hint_second_name">Second name</string>
-    <string name="hint_phone">Phone</string>
-    <string name="button_save">Save</string>
-    <string name="empty_not_saved">Contact not saved because it is empty.</string>
-
-    <string name="ringtone_text_view">Ringtone</string>
-    <string name="ringtone_name_text_view">Default</string>
-
-    <string name="note_text_view">Note</string>
-    <string name="note_name_text_view">---</string>
-
+    <!-- Action strings -->
     <string name="edit">Edit</string>
-
     <string name="select_ringtone">Select ringtone</string>
     <string name="add_note">Add note</string>
     <string name="cancel">Cancel</string>
     <string name="select">Select</string>
     <string name="accept">Accept</string>
-
-    <string name="text_here">Text here</string>
-    <string name="take_a_photo">Take a photo</string>
-    <string name="choose_photo">Choose photo</string>
+    <string name="add">Add</string>
+    <string name="search">Search</string>
+    <string name="button_save">Save</string>
     <string name="delete">Delete</string>
-    <string name="phone_is_empty">Phone field should not be empty!</string>
 
+    <!-- Warning strings -->
+    <string name="empty_not_saved">Contact not saved because it is empty.</string>
+    <string name="phone_is_empty">Phone field should not be empty!</string>
+    <string name="too_small">Too short!! (minimum %1$d symbols)</string>
     <string name="are_you_sure">You want do delete this contact?</string>
+
+    <!-- Hints -->
+    <string name="hint_first_name">First name</string>
+    <string name="hint_second_name">Second name</string>
+    <string name="hint_phone">Phone</string>
+
+    <!-- Captions, titles, simple text -->
+    <string name="ringtone_text_view">Ringtone</string>
+    <string name="ringtone_name_text_view">Default</string>
+    <string name="note_text_view">Note</string>
+    <string name="note_name_text_view">---</string>
+    <string name="text_here">Text here</string>
+    <string name="take_a_photo">  Take a photo</string>
+    <string name="choose_photo">Choose photo</string>
+
 </resources>

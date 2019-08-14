@@ -18,6 +18,10 @@ import com.example.contacts.presentation.onecontact.OneContactActivity
 class ContactListAdapter internal constructor(private val context: Context) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterable {
 
+    private val inflater: LayoutInflater = LayoutInflater.from(context)
+    private var contacts = ArrayList<AdapterModel>()
+    private var contactsFiltered = ArrayList<AdapterModel>()
+
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(p0: CharSequence?): FilterResults {
@@ -50,14 +54,6 @@ class ContactListAdapter internal constructor(private val context: Context) :
                 }
             }
         }
-    }
-
-    private val inflater: LayoutInflater = LayoutInflater.from(context)
-    private var contacts = ArrayList<AdapterModel>()
-    private var contactsFiltered = ArrayList<AdapterModel>()
-
-    companion object {
-        const val EXTRA_PHONE = "com.example.contacts.presentation.listofcontacts.FNAME"
     }
 
     inner class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -115,7 +111,7 @@ class ContactListAdapter internal constructor(private val context: Context) :
         contacts.clear()
         var currentLetter = getFirstLetter(contact[0])
 
-        if (contact.size == 1) {
+        if (contact.size == 1) { //if there is only one record in contacts
             contacts.add(
                 AdapterModel(
                     isContact = false,
@@ -132,10 +128,10 @@ class ContactListAdapter internal constructor(private val context: Context) :
                     letter = null
                 )
             )
-        } else {
+        } else { //for more contacts
 
             for (i in 0 until contact.size - 1) {
-                if (i == 0) {
+                if (i == 0) { //first goes letter
                     contacts.add(
                         AdapterModel(
                             isContact = false,
@@ -145,7 +141,7 @@ class ContactListAdapter internal constructor(private val context: Context) :
                         )
                     )
                 }
-                if (currentLetter != getFirstLetter(contact[i + 1])) {
+                if (currentLetter != getFirstLetter(contact[i + 1])) { //if next record starts with different letter add header
                     contacts.add(
                         AdapterModel(
                             isContact = true,
@@ -163,7 +159,7 @@ class ContactListAdapter internal constructor(private val context: Context) :
                             letter = currentLetter
                         )
                     )
-                } else {
+                } else { //if next letter is the same - add next record
                     contacts.add(
                         AdapterModel(
                             isContact = true,
@@ -174,6 +170,7 @@ class ContactListAdapter internal constructor(private val context: Context) :
                     )
                 }
             }
+            //adding the last contact
             contacts.add(
                 AdapterModel(
                     isContact = true,
@@ -191,11 +188,14 @@ class ContactListAdapter internal constructor(private val context: Context) :
 
     override fun getItemViewType(position: Int): Int {
         var viewType = 0
-        if (contactsFiltered[position].getType() == TYPE_LETTER) {
-            viewType = TYPE_LETTER
-        } else if (contactsFiltered[position].getType() == TYPE_CONTACT) {
-            viewType = TYPE_CONTACT
+        when (contactsFiltered[position].getType()) {
+            TYPE_LETTER -> viewType = TYPE_LETTER
+            TYPE_CONTACT -> viewType = TYPE_CONTACT
         }
         return viewType
+    }
+
+    companion object {
+        const val EXTRA_PHONE = "com.example.contacts.presentation.listofcontacts.FNAME"
     }
 }
