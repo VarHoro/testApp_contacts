@@ -19,6 +19,7 @@ class OneContactViewModel(application: Application) : AndroidViewModel(applicati
     private val interactor: Interactor by inject { parametersOf(application) }
 
     val isExistingContact = ObservableBoolean(false)
+    val imageText = ObservableField<String>("")
     val firstNameText = ObservableField<String>("")
     val secondNameText = ObservableField<String>("")
     val phoneText = ObservableField<String>("")
@@ -31,6 +32,7 @@ class OneContactViewModel(application: Application) : AndroidViewModel(applicati
     fun getByPhone(getPhone: String) {
         contactModel = interactor.getByPhone(getPhone)
         observer = Observer { contactModel ->
+            imageText.set(contactModel.image)
             firstNameText.set(contactModel.firstName)
             secondNameText.set(contactModel.secondName)
             phoneText.set(contactModel.phone)
@@ -49,6 +51,7 @@ class OneContactViewModel(application: Application) : AndroidViewModel(applicati
 
     fun update() {
         val contact = ContactModel(
+            image = imageText.get(),
             firstName = firstNameText.get(),
             secondName = secondNameText.get(),
             phone = phoneText.get() ?: "",

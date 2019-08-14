@@ -1,19 +1,24 @@
 package com.example.contacts.presentation.onecontact
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toBitmap
 import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
@@ -21,15 +26,23 @@ import com.example.contacts.R
 import com.example.contacts.databinding.ActivityOnecontactBinding
 import com.example.contacts.presentation.listofcontacts.ContactListAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.android.synthetic.*
 import kotlinx.android.synthetic.main.activity_onecontact.*
 import kotlinx.android.synthetic.main.bottom_sheet.*
 import kotlinx.android.synthetic.main.contact_item.*
 import org.koin.android.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
+import java.io.File
+import java.io.IOException
+import java.net.URI
+import java.text.SimpleDateFormat
+import java.util.*
 
 class OneContactActivity : AppCompatActivity() {
 
     private val viewModel: OneContactViewModel by viewModel { parametersOf(this.application) }
+
+    var currentPhotoPath: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,16 +65,13 @@ class OneContactActivity : AppCompatActivity() {
             val choosePhoto = view.findViewById<TextView>(R.id.choose_photo)
             val dialog = BottomSheetDialog(this)
             takePhoto.setOnClickListener {
-                Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-                    takePictureIntent.resolveActivity(packageManager)?.also {
-                        dialog.dismiss()
-                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-                    }
-                }
+                dialog.dismiss()
+                dispatchTakePictureIntent()
             }
             choosePhoto.setOnClickListener {
                 val choosePhotoIntent = Intent(Intent.ACTION_PICK)
                 choosePhotoIntent.type = "image/*"
+                choosePhotoIntent.action = Intent.ACTION_GET_CONTENT
                 dialog.dismiss()
                 startActivityForResult(choosePhotoIntent, REQUEST_IMAGE_CHOOSE)
             }
@@ -100,7 +110,10 @@ class OneContactActivity : AppCompatActivity() {
             val inflater = LayoutInflater.from(this)
             val view = inflater.inflate(R.layout.note_dialog, null)
             val note = view.findViewById<EditText>(R.id.note_edit_text)
-            builder.setTitle(R.string.add_note).setView(view)
+            if (!viewModel.noteText.get().isNullOrEmpty()){
+                note.setText(viewModel.noteText.get())
+            }
+                builder.setTitle(R.string.add_note).setView(view)
             builder.setNegativeButton(R.string.cancel) { dialogInterface, _ -> dialogInterface.dismiss() }
                 .setPositiveButton(R.string.select) { dialogInterface, _ ->
                     if (note != null) {
@@ -128,17 +141,49 @@ class OneContactActivity : AppCompatActivity() {
         }
     }
 
+    private fun dispatchTakePictureIntent() {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (takePictureIntent.resolveActivity(packageManager) != null) {
+            try {
+                val photoFile = createFileImage()
+                val photoURI = FileProvider.getUriForFile(
+                    this,
+                    "com.example.contacts.fileprovider",
+                    photoFile
+                )
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+            } catch (e: IOException) {
+                Log.e("OneContactActivity", "Error: ${e.message}")
+            }
+        }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    @Throws(IOException::class)
+    private fun createFileImage(): File {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val image = File.createTempFile(
+            "JPEG_${timeStamp}_",
+            ".jpg",
+            storageDir
+        )
+        currentPhotoPath = image.absolutePath
+        return image
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 REQUEST_IMAGE_CAPTURE -> {
                     Glide.with(this)
-                        .load(data?.extras?.get("data"))
+                        .load(currentPhotoPath) //data?.extras?.get("data")
                         .into(image_view)
                 }
                 REQUEST_IMAGE_CHOOSE -> {
                     Glide.with(this)
-                        .load(data?.data)
+                        .load(data?.data) //data?.data
                         .into(image_view)
                 }
             }
@@ -158,6 +203,7 @@ class OneContactActivity : AppCompatActivity() {
                     Toast.makeText(this, R.string.phone_is_empty, Toast.LENGTH_LONG).show()
                 } else {
                     if (viewModel.isExistingContact.get()) {
+                        viewModel.imageText.set(currentPhotoPath)
                         viewModel.firstNameText.set(first_name_edit_text.text.toString())
                         viewModel.secondNameText.set(second_name_edit_view.text.toString())
                         viewModel.ringtoneText.set(ringtone_text_view.text.toString())
@@ -170,6 +216,7 @@ class OneContactActivity : AppCompatActivity() {
                         if (TextUtils.isEmpty(first_name_edit_text.text)) {
                             setResult(Activity.RESULT_CANCELED, replyIntent)
                         } else {
+                            val img = currentPhotoPath
                             val fname = first_name_edit_text.text.toString()
                             val sname = second_name_edit_view.text.toString()
                             val phone = phone_edit_text.text.toString()
@@ -180,6 +227,7 @@ class OneContactActivity : AppCompatActivity() {
                                 .putExtra(EXTRA_PHONE, phone)
                                 .putExtra(EXTRA_RING, ringtone)
                                 .putExtra(EXTRA_NOTE, note)
+                                .putExtra(EXTRA_IMG, img)
                             setResult(Activity.RESULT_OK, replyIntent)
                         }
                         finish()

@@ -21,7 +21,8 @@ class ContactsDataSourceImpl(application: Application, scope: CoroutineScope) : 
             secondName = contactModel.secondName ?: "",
             phone = contactModel.phone,
             note = contactModel.note,
-            ringtone = contactModel.ringtone
+            ringtone = contactModel.ringtone,
+            image = contactModel.image
         )
         repository.update(contact)
     }
@@ -32,7 +33,8 @@ class ContactsDataSourceImpl(application: Application, scope: CoroutineScope) : 
             secondName = contactModel.secondName ?: "",
             phone = contactModel.phone,
             note = contactModel.note,
-            ringtone = contactModel.ringtone
+            ringtone = contactModel.ringtone,
+            image = contactModel.image
         )
         repository.insert(contact)
     }
@@ -50,7 +52,8 @@ class ContactsDataSourceImpl(application: Application, scope: CoroutineScope) : 
                 secondName = it.secondName,
                 phone = it.phone,
                 note = it.note,
-                ringtone = it.ringtone
+                ringtone = it.ringtone,
+                image = it.image
             )
             model.add(contact)
         }
@@ -64,7 +67,8 @@ class ContactsDataSourceImpl(application: Application, scope: CoroutineScope) : 
             secondName = contact.secondName,
             phone = contact.phone,
             note = contact.note,
-            ringtone = contact.ringtone
+            ringtone = contact.ringtone,
+            image = contact.image
         )
     }
 
@@ -74,7 +78,8 @@ class ContactsDataSourceImpl(application: Application, scope: CoroutineScope) : 
             secondName = contactModel.secondName ?: "",
             phone = contactModel.phone,
             note = contactModel.note,
-            ringtone = contactModel.ringtone
+            ringtone = contactModel.ringtone,
+            image = contactModel.image
         )
         repository.delete(contact)
     }

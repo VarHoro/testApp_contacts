@@ -10,5 +10,6 @@ data class Contact(
     @PrimaryKey
     val phone: String,
     val ringtone: String?,
-    val note: String?
+    val note: String?,
+    val image: String?
 )

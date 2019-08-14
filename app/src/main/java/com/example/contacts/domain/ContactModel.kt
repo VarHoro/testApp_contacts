@@ -5,5 +5,6 @@ data class ContactModel(
     val secondName: String? = null,
     val phone: String = "",
     val ringtone: String? = null,
-    val note: String? = null
+    val note: String? = null,
+    val image: String? = null
 )

@@ -5,6 +5,8 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.contacts.R
@@ -14,9 +16,45 @@ import com.example.contacts.presentation.listofcontacts.AdapterModel.Companion.T
 import com.example.contacts.presentation.onecontact.OneContactActivity
 
 class ContactListAdapter internal constructor(private val context: Context) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterable {
+
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(p0: CharSequence?): FilterResults {
+                val charString = p0.toString()
+                contactsFiltered = (if (charString.isEmpty()) {
+                    contacts
+                } else {
+                    val filtered = ArrayList<AdapterModel>()
+                    for (row in contacts) {
+                        if (row.isContact) {
+                            if (row.name!!.toLowerCase().contains(charString.toLowerCase()) ||
+                                row.phone!!.contains(charString)
+                            ) {
+                                filtered.add(row)
+                            }
+                        }
+                    }
+                    filtered
+                })
+
+                val results = FilterResults()
+                results.values = contactsFiltered
+                return results
+            }
+
+            override fun publishResults(p0: CharSequence?, p1: FilterResults?) {
+                if (p1 != null) {
+                    contactsFiltered = p1.values as ArrayList<AdapterModel>
+                    notifyDataSetChanged()
+                }
+            }
+        }
+    }
+
     private val inflater: LayoutInflater = LayoutInflater.from(context)
     private var contacts = ArrayList<AdapterModel>()
+    private var contactsFiltered = ArrayList<AdapterModel>()
 
     companion object {
         const val EXTRA_PHONE = "com.example.contacts.presentation.listofcontacts.FNAME"
@@ -41,22 +79,20 @@ class ContactListAdapter internal constructor(private val context: Context) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        when (viewType) {
-            TYPE_CONTACT -> {
-                val v = inflater.inflate(R.layout.contact_item, parent, false)
-                return ContactViewHolder(v)
-            }
+        return when (viewType) {
             TYPE_LETTER -> {
                 val v = inflater.inflate(R.layout.header_item, parent, false)
-                return AlphabetViewHolder(v)
+                AlphabetViewHolder(v)
+            }
+            else -> {
+                val v = inflater.inflate(R.layout.contact_item, parent, false)
+                ContactViewHolder(v)
             }
         }
-        val itemView = inflater.inflate(R.layout.contact_item, parent, false)
-        return ContactViewHolder(itemView)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val current = contacts[position]
+        val current = contactsFiltered[position]
         if (current.isContact) {
             holder as ContactViewHolder
             holder.contactItemView.text = current.name
@@ -147,16 +183,17 @@ class ContactListAdapter internal constructor(private val context: Context) :
                 )
             )
         }
+        contactsFiltered = contacts
         notifyDataSetChanged()
     }
 
-    override fun getItemCount() = contacts.size
+    override fun getItemCount() = contactsFiltered.size
 
     override fun getItemViewType(position: Int): Int {
         var viewType = 0
-        if (contacts[position].getType() == TYPE_LETTER) {
+        if (contactsFiltered[position].getType() == TYPE_LETTER) {
             viewType = TYPE_LETTER
-        } else if (contacts[position].getType() == TYPE_CONTACT) {
+        } else if (contactsFiltered[position].getType() == TYPE_CONTACT) {
             viewType = TYPE_CONTACT
         }
         return viewType

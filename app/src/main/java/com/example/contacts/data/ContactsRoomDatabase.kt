@@ -44,7 +44,7 @@ abstract class ContactsRoomDatabase : RoomDatabase() {
         }
 
         suspend fun populateDatabase(contactDao: ContactDao) {
-            var contact = Contact("Emergency", "","020", "Default", "Only for extreme situations")
+            var contact = Contact("Emergency", "","020", "Default", "Only for extreme situations", "")
             contactDao.insert(contact)
         }
     }
