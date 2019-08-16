@@ -1,22 +1,14 @@
 package com.example.contacts.presentation.listofcontacts
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.*
 import com.example.contacts.domain.ContactModel
 import com.example.contacts.domain.Interactor
-import org.koin.core.KoinComponent
-import org.koin.core.inject
-import org.koin.core.parameter.parametersOf
 
-class ContactsViewModel(application: Application) : AndroidViewModel(application),
-    KoinComponent {
+class ContactsViewModel(private val interactor: Interactor) : ViewModel() {
 
-    private val interactor: Interactor by inject { parametersOf(application) }
-    var allContacts: LiveData<ArrayList<ContactModel>>
+    var allContacts: LiveData<List<ContactModel>> = interactor.getData()
 
-    init {
-        allContacts = interactor.getData()
+    fun getBySearch(searchQuery: String?): LiveData<List<ContactModel>> {
+        return interactor.getBySearch(searchQuery)
     }
-
 }

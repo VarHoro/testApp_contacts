@@ -19,11 +19,10 @@ import com.example.contacts.databinding.ActivityContactsBinding
 import com.example.contacts.presentation.onecontact.OneContactActivity
 import kotlinx.android.synthetic.main.activity_contacts.*
 import org.koin.android.viewmodel.ext.android.viewModel
-import org.koin.core.parameter.parametersOf
 
 class ContactsActivity : AppCompatActivity() {
 
-    private val viewModel: ContactsViewModel by viewModel { parametersOf(this.application) }
+    private val viewModel: ContactsViewModel by viewModel()
     private lateinit var adapter: ContactListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +40,7 @@ class ContactsActivity : AppCompatActivity() {
         recycler_view.adapter = adapter
         recycler_view.layoutManager = LinearLayoutManager(this)
 
-        //update adapter if contacts changed
+        //updateContact adapter if contacts changed
         viewModel.allContacts.observe(this, Observer { contacts ->
             if (contacts != null) {
                 adapter.setContacts(contacts)
@@ -80,13 +79,17 @@ class ContactsActivity : AppCompatActivity() {
         val searchView = menu?.findItem(R.id.action_search)?.actionView as SearchView
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextChange(p0: String?): Boolean {
-                adapter.filter.filter(p0)
+            override fun onQueryTextChange(searchQuery: String?): Boolean {
+                viewModel.getBySearch(searchQuery).observe(this@ContactsActivity, Observer {
+                    adapter.setContacts(it)
+                })
                 return false
             }
 
-            override fun onQueryTextSubmit(p0: String?): Boolean {
-                adapter.filter.filter(p0)
+            override fun onQueryTextSubmit(searchQuery: String?): Boolean {
+                viewModel.getBySearch(searchQuery).observe(this@ContactsActivity, Observer {
+                    adapter.setContacts(it)
+                })
                 return false
             }
         })

@@ -9,16 +9,16 @@ interface ContactDao {
     fun deleteAll()
 
     @Query("SELECT * FROM contacts WHERE phone = :phone")
-    suspend fun selectByPhone(phone: String): Contact
+    fun selectByPhone(phone: String): Contact
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(contact: Contact)
+    fun insert(contact: Contact)
 
-    @Delete
-    suspend fun delete(contact: Contact)
+    @Query("DELETE FROM contacts WHERE phone = :phone")
+    fun deleteContact(phone: String)
 
     @Update
-    suspend fun update(contact: Contact)
+    fun update(contact: Contact)
 
     @Query("SELECT * FROM contacts ORDER BY secondName ASC")
     fun loadAllContacts(): LiveData<List<Contact>>

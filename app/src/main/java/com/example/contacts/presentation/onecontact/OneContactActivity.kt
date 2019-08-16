@@ -24,7 +24,6 @@ import com.example.contacts.presentation.listofcontacts.ContactListAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.android.synthetic.main.activity_onecontact.*
 import org.koin.android.viewmodel.ext.android.viewModel
-import org.koin.core.parameter.parametersOf
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -32,7 +31,7 @@ import java.util.*
 
 class OneContactActivity : AppCompatActivity() {
 
-    private val viewModel: OneContactViewModel by viewModel { parametersOf(this.application) }
+    private val viewModel: OneContactViewModel by viewModel()
 
     private var currentPhotoPath: String = ""
 
@@ -131,13 +130,13 @@ class OneContactActivity : AppCompatActivity() {
                 .show()
         }
 
-        //delete contact
+        //deleteContact contact
         delete_button.setOnClickListener {
             val builder = AlertDialog.Builder(this)
             builder.setTitle(R.string.delete)
                 .setMessage(R.string.are_you_sure)
                 .setPositiveButton(R.string.delete) { dialogInterface, _ ->
-                    viewModel.delete()
+                    viewModel.deleteContact()
                     dialogInterface.dismiss()
                     finish()
                 }
@@ -220,15 +219,15 @@ class OneContactActivity : AppCompatActivity() {
                         phone_edit_text.hint = String.format(getString(R.string.too_small), MIN_PHONE_LENGTH)
                         phone_edit_text.setHintTextColor(getColor(R.color.colorWarning))
                     } else {
-                        //update info
+                        //updateContact info
                         if (viewModel.isExistingContact.get()) {
                             viewModel.imageText.set(currentPhotoPath)
-                            viewModel.update()
+                            viewModel.updateContact()
                             finish()
                         } else {
-                            //send data for insert
+                            //send data for addContact
                             viewModel.imageText.set(currentPhotoPath)
-                            viewModel.insert()
+                            viewModel.addContact()
                             finish()
                         }
                     }

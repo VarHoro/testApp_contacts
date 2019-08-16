@@ -1,36 +1,29 @@
 package com.example.contacts.domain
 
-import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import org.koin.core.KoinComponent
-import org.koin.core.inject
-import org.koin.core.parameter.parametersOf
 
-class InteractorImpl(private val application: Application) : Interactor, KoinComponent {
-
-    private val dataSource: ContactsDataSource by inject { parametersOf(this.application, scope) }
+class InteractorImpl(private val dataSource: ContactsDataSource) : Interactor {
 
     private val job = SupervisorJob()
-
     private val scope = CoroutineScope(Dispatchers.IO + job)
-    override fun insert(contact: ContactModel) {
-        scope.launch {
-            dataSource.insert(contact)
-        }
+
+    private lateinit var observer : Observer<List<ContactModel>>
+
+    override fun addContact(contact: ContactModel) {
+        dataSource.insert(contact)
     }
 
-    override fun update(contact: ContactModel) {
-        scope.launch {
-            dataSource.update(contact)
-        }
+    override fun updateContact(contact: ContactModel) {
+        dataSource.update(contact)
     }
 
-    override fun getData(): LiveData<ArrayList<ContactModel>> {
+    override fun getData(): LiveData<List<ContactModel>> {
         return dataSource.getData()
     }
 
@@ -42,9 +35,32 @@ class InteractorImpl(private val application: Application) : Interactor, KoinCom
         return contact
     }
 
-    override fun delete(contact: ContactModel) {
-        scope.launch {
-            dataSource.delete(contact)
+    override fun deleteContact(contact: ContactModel) {
+        dataSource.delete(contact)
+    }
+
+    override fun getBySearch(searchQuery: String?): LiveData<List<ContactModel>> {
+        val contacts = dataSource.getData()
+        val result = MutableLiveData<List<ContactModel>>()
+        var list = ArrayList<ContactModel>()
+        observer = Observer {
+            if (searchQuery != null) {
+                it.forEach { contact ->
+                    if (contact.firstName?.toLowerCase()?.contains(searchQuery.toLowerCase()) == true ||
+                        contact.secondName?.toLowerCase()?.contains(searchQuery.toLowerCase()) == true || contact.phone.contains(
+                            searchQuery.toString()
+                        )
+                    ) {
+                        list.add(contact)
+                    }
+                }
+            } else {
+                list = it as ArrayList<ContactModel>
+            }
+            result.postValue(list)
+            contacts.removeObserver(observer)
         }
+        contacts.observeForever(observer)
+        return result
     }
 }

@@ -1,21 +1,12 @@
 package com.example.contacts.presentation.onecontact
 
-import android.app.Application
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
+import androidx.lifecycle.*
 import com.example.contacts.domain.ContactModel
 import com.example.contacts.domain.Interactor
-import org.koin.core.KoinComponent
-import org.koin.core.inject
-import org.koin.core.parameter.parametersOf
 
-class OneContactViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
-
-    private val interactor: Interactor by inject { parametersOf(application) }
+class OneContactViewModel(private val interactor: Interactor ) : ViewModel(){
 
     val isExistingContact = ObservableBoolean(false)
     val imageText = ObservableField("")
@@ -47,7 +38,7 @@ class OneContactViewModel(application: Application) : AndroidViewModel(applicati
         return liveData
     }
 
-    fun insert() {
+    fun addContact() {
         val contact = ContactModel(
             firstName = firstNameText.get(),
             secondName = secondNameText.get(),
@@ -56,14 +47,14 @@ class OneContactViewModel(application: Application) : AndroidViewModel(applicati
             image = imageText.get(),
             note = noteText.get()
         )
-        interactor.insert(contact)
+        interactor.addContact(contact)
     }
 
     private fun dataReceived() {
         contactModel.removeObserver(observer)
     }
 
-    fun update() {
+    fun updateContact() {
         val contact = ContactModel(
             image = imageText.get(),
             firstName = firstNameText.get(),
@@ -73,14 +64,14 @@ class OneContactViewModel(application: Application) : AndroidViewModel(applicati
             ringtone = ringtoneText.get()
         )
         if (contactModel.value != contact) {
-            interactor.update(contact)
+            interactor.updateContact(contact)
         }
     }
 
-    fun delete() {
+    fun deleteContact() {
         val model: ContactModel? = contactModel.value
         if (model != null) {
-            interactor.delete(model)
+            interactor.deleteContact(model)
         }
     }
 }
