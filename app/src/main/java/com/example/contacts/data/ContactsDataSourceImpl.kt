@@ -8,7 +8,7 @@ import com.example.contacts.domain.ContactsDataSource
 class ContactsDataSourceImpl(private val contactDao: ContactDao) :
     ContactsDataSource {
 
-    override fun update(contactModel: ContactModel) {
+    override suspend fun update(contactModel: ContactModel) {
         val contact = Contact(
             firstName = contactModel.firstName ?: "",
             secondName = contactModel.secondName ?: "",
@@ -20,7 +20,7 @@ class ContactsDataSourceImpl(private val contactDao: ContactDao) :
         contactDao.update(contact)
     }
 
-    override fun insert(contactModel: ContactModel) {
+    override suspend fun insert(contactModel: ContactModel) {
         val contact = Contact(
             firstName = contactModel.firstName ?: "",
             secondName = contactModel.secondName ?: "",
@@ -60,7 +60,7 @@ class ContactsDataSourceImpl(private val contactDao: ContactDao) :
         )
     }
 
-    override fun delete(contactModel: ContactModel) {
+    override suspend fun delete(contactModel: ContactModel) {
         contactDao.deleteContact(contactModel.phone)
     }
 }

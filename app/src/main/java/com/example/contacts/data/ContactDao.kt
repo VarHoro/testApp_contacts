@@ -12,13 +12,13 @@ interface ContactDao {
     fun selectByPhone(phone: String): Contact
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(contact: Contact)
+    suspend fun insert(contact: Contact)
 
     @Query("DELETE FROM contacts WHERE phone = :phone")
-    fun deleteContact(phone: String)
+    suspend fun deleteContact(phone: String)
 
     @Update
-    fun update(contact: Contact)
+    suspend fun update(contact: Contact)
 
     @Query("SELECT * FROM contacts ORDER BY secondName ASC")
     fun loadAllContacts(): LiveData<List<Contact>>

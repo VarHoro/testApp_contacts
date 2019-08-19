@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 
 interface ContactsDataSource{
     fun getData(): LiveData<List<ContactModel>>
-    fun insert(contactModel: ContactModel)
+    suspend fun insert(contactModel: ContactModel)
     fun getByPhone(phone: String): ContactModel
-    fun update(contactModel: ContactModel)
-    fun delete(contactModel: ContactModel)
+    suspend fun update(contactModel: ContactModel)
+    suspend fun delete(contactModel: ContactModel)
 }

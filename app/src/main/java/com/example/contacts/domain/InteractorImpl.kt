@@ -13,14 +13,18 @@ class InteractorImpl(private val dataSource: ContactsDataSource) : Interactor {
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
-    private lateinit var observer : Observer<List<ContactModel>>
+    private lateinit var observer: Observer<List<ContactModel>>
 
     override fun addContact(contact: ContactModel) {
-        dataSource.insert(contact)
+        scope.launch {
+            dataSource.insert(contact)
+        }
     }
 
     override fun updateContact(contact: ContactModel) {
-        dataSource.update(contact)
+        scope.launch {
+            dataSource.update(contact)
+        }
     }
 
     override fun getData(): LiveData<List<ContactModel>> {
@@ -36,7 +40,9 @@ class InteractorImpl(private val dataSource: ContactsDataSource) : Interactor {
     }
 
     override fun deleteContact(contact: ContactModel) {
-        dataSource.delete(contact)
+        scope.launch {
+            dataSource.delete(contact)
+        }
     }
 
     override fun getBySearch(searchQuery: String?): LiveData<List<ContactModel>> {
