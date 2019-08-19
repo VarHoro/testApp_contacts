@@ -23,6 +23,6 @@ interface ContactDao {
     @Query("SELECT * FROM contacts ORDER BY secondName ASC")
     fun loadAllContacts(): LiveData<List<Contact>>
 
-    @Query("SELECT * FROM contacts WHERE UPPER(firstName) LIKE UPPER('%'+:query+'%') OR UPPER(secondName) LIKE UPPER('%' + :query + '%') ORDER BY secondName ASC")
+    @Query("SELECT * FROM contacts WHERE firstName LIKE '%' || :query || '%' OR secondName LIKE '%' || :query || '%' ORDER BY secondName ASC")
     fun searchContacts(query: String): LiveData<List<Contact>>
 }

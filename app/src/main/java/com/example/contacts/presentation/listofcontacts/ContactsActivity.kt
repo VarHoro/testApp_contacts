@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
@@ -32,11 +33,12 @@ class ContactsActivity : AppCompatActivity() {
         binding.lifecycleOwner = this
 
         requestPermission()
+
         //toolbar
         setSupportActionBar(toolbar_contacts)
 
         //list of contacts in recycler view
-        adapter = ContactListAdapter(this) {phone -> onItemClick(phone)}
+        adapter = ContactListAdapter(this) { phone -> onItemClick(phone) }
         recycler_view.adapter = adapter
         recycler_view.layoutManager = LinearLayoutManager(this)
 
@@ -48,7 +50,7 @@ class ContactsActivity : AppCompatActivity() {
         })
     }
 
-    private fun onItemClick(phone: String){
+    private fun onItemClick(phone: String) {
         OneContactActivity.start(this, phone)
     }
 
@@ -96,7 +98,7 @@ class ContactsActivity : AppCompatActivity() {
         return true
     }
 
-    private fun searchContacts(query: String?){
+    private fun searchContacts(query: String?) {
         viewModel.getBySearch(query).observe(this@ContactsActivity, Observer {
             adapter.setContacts(it)
         })
