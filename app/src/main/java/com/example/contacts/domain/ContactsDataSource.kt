@@ -8,4 +8,5 @@ interface ContactsDataSource{
     fun getByPhone(phone: String): ContactModel
     fun update(contactModel: ContactModel)
     fun delete(contactModel: ContactModel)
+    fun searchContacts(query:String): LiveData<List<ContactModel>>
 }

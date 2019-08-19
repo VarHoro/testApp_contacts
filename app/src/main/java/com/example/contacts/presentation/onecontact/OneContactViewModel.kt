@@ -4,9 +4,9 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import com.example.contacts.domain.ContactModel
-import com.example.contacts.domain.Interactor
+import com.example.contacts.domain.ContactsInteractor
 
-class OneContactViewModel(private val interactor: Interactor ) : ViewModel(){
+class OneContactViewModel(private val interactor: ContactsInteractor ) : ViewModel(){
 
     val isExistingContact = ObservableBoolean(false)
     val imageText = ObservableField("")

@@ -2,7 +2,7 @@ package com.example.contacts.domain
 
 import androidx.lifecycle.LiveData
 
-interface Interactor {
+interface ContactsInteractor {
     fun getData(): LiveData<List<ContactModel>>
     fun addContact(contact:ContactModel)
     fun getByPhone(phone: String): LiveData<ContactModel>

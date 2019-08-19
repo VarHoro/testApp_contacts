@@ -3,12 +3,13 @@ package com.example.contacts.domain
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.Transformations
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
-class InteractorImpl(private val dataSource: ContactsDataSource) : Interactor {
+class ContactsInteractorImpl(private val dataSource: ContactsDataSource) : ContactsInteractor {
 
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
@@ -46,27 +47,6 @@ class InteractorImpl(private val dataSource: ContactsDataSource) : Interactor {
     }
 
     override fun getBySearch(searchQuery: String?): LiveData<List<ContactModel>> {
-        val contacts = dataSource.getData()
-        val result = MutableLiveData<List<ContactModel>>()
-        var list = ArrayList<ContactModel>()
-        observer = Observer {
-            if (searchQuery != null) {
-                it.forEach { contact ->
-                    if (contact.firstName?.toLowerCase()?.contains(searchQuery.toLowerCase()) == true ||
-                        contact.secondName?.toLowerCase()?.contains(searchQuery.toLowerCase()) == true || contact.phone.contains(
-                            searchQuery.toString()
-                        )
-                    ) {
-                        list.add(contact)
-                    }
-                }
-            } else {
-                list = it as ArrayList<ContactModel>
-            }
-            result.postValue(list)
-            contacts.removeObserver(observer)
-        }
-        contacts.observeForever(observer)
-        return result
+        return dataSource.searchContacts(searchQuery.toString())
     }
 }

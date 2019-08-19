@@ -2,9 +2,9 @@ package com.example.contacts.presentation.listofcontacts
 
 import androidx.lifecycle.*
 import com.example.contacts.domain.ContactModel
-import com.example.contacts.domain.Interactor
+import com.example.contacts.domain.ContactsInteractor
 
-class ContactsViewModel(private val interactor: Interactor) : ViewModel() {
+class ContactsViewModel(private val interactor: ContactsInteractor) : ViewModel() {
 
     var allContacts: LiveData<List<ContactModel>> = interactor.getData()
 

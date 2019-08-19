@@ -63,4 +63,20 @@ class ContactsDataSourceImpl(private val contactDao: ContactDao) :
     override fun delete(contactModel: ContactModel) {
         contactDao.deleteContact(contactModel.phone)
     }
+
+    override fun searchContacts(query: String): LiveData<List<ContactModel>> {
+        val liveData = contactDao.searchContacts(query)
+        return Transformations.map(liveData) { contacts ->
+            contacts.map {
+                ContactModel(
+                    firstName = it.firstName,
+                    secondName = it.secondName,
+                    phone = it.phone,
+                    note = it.note,
+                    ringtone = it.ringtone,
+                    image = it.image
+                )
+            }
+        }
+    }
 }

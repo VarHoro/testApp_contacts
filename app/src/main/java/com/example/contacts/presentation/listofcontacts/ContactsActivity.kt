@@ -36,7 +36,7 @@ class ContactsActivity : AppCompatActivity() {
         setSupportActionBar(toolbar_contacts)
 
         //list of contacts in recycler view
-        adapter = ContactListAdapter(this)
+        adapter = ContactListAdapter(this) {phone -> onItemClick(phone)}
         recycler_view.adapter = adapter
         recycler_view.layoutManager = LinearLayoutManager(this)
 
@@ -46,6 +46,10 @@ class ContactsActivity : AppCompatActivity() {
                 adapter.setContacts(contacts)
             }
         })
+    }
+
+    private fun onItemClick(phone: String){
+        OneContactActivity.start(this, phone)
     }
 
     private fun requestPermission() {
@@ -80,20 +84,21 @@ class ContactsActivity : AppCompatActivity() {
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(searchQuery: String?): Boolean {
-                viewModel.getBySearch(searchQuery).observe(this@ContactsActivity, Observer {
-                    adapter.setContacts(it)
-                })
+                searchContacts(searchQuery)
                 return false
             }
 
             override fun onQueryTextSubmit(searchQuery: String?): Boolean {
-                viewModel.getBySearch(searchQuery).observe(this@ContactsActivity, Observer {
-                    adapter.setContacts(it)
-                })
+                searchContacts(searchQuery)
                 return false
             }
         })
         return true
     }
 
+    private fun searchContacts(query: String?){
+        viewModel.getBySearch(query).observe(this@ContactsActivity, Observer {
+            adapter.setContacts(it)
+        })
+    }
 }

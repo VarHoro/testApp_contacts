@@ -13,7 +13,7 @@ import com.example.contacts.presentation.listofcontacts.AdapterModel.Companion.T
 import com.example.contacts.presentation.listofcontacts.AdapterModel.Companion.TYPE_LETTER
 import com.example.contacts.presentation.onecontact.OneContactActivity
 
-class ContactListAdapter internal constructor(private val context: Context) :
+class ContactListAdapter internal constructor(context: Context, val adapterOnClick: (String) -> Unit) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
@@ -24,11 +24,7 @@ class ContactListAdapter internal constructor(private val context: Context) :
         private val contactPhoneView: TextView = itemView.findViewById(R.id.phone_text_view)
 
         init {
-            itemView.setOnClickListener {
-                val intent = Intent(context, OneContactActivity::class.java)
-                intent.putExtra(EXTRA_PHONE, contactPhoneView.text.toString())
-                context.startActivity(intent)
-            }
+            itemView.setOnClickListener {adapterOnClick(contactPhoneView.text.toString())}
         }
 
         fun bind(model: AdapterModel) {
@@ -79,78 +75,27 @@ class ContactListAdapter internal constructor(private val context: Context) :
 
     internal fun setContacts(contact: List<ContactModel>) {
         contacts.clear()
-        if (contact.isNotEmpty()) {
-            var currentLetter = getFirstLetter(contact[0])
-
-            if (contact.size == 1) { //if there is only one record in contacts
-                contacts.add(
-                    AdapterModel(
-                        isContact = false,
-                        name = null,
-                        phone = null,
-                        letter = currentLetter
-                    )
+        contact.groupBy {
+            getFirstLetter(it)
+        }.forEach{ (key, list) ->
+            contacts.add(
+                AdapterModel(
+                    isContact = false,
+                    name = null,
+                    phone = null,
+                    letter = key
                 )
-                contacts.add(
+            )
+            contacts.addAll(
+                list.map{
                     AdapterModel(
                         isContact = true,
-                        name = contact[0].firstName.plus(' ').plus(contact[0].secondName),
-                        phone = contact[0].phone,
+                        name = it.firstName.plus(' ').plus(it.secondName),
+                        phone = it.phone,
                         letter = null
                     )
-                )
-            } else { //for more contacts
-
-                for (i in 0 until contact.size - 1) {
-                    if (i == 0) { //first goes letter
-                        contacts.add(
-                            AdapterModel(
-                                isContact = false,
-                                name = null,
-                                phone = null,
-                                letter = currentLetter
-                            )
-                        )
-                    }
-                    if (currentLetter != getFirstLetter(contact[i + 1])) { //if next record starts with different letter add header
-                        contacts.add(
-                            AdapterModel(
-                                isContact = true,
-                                name = contact[i].firstName.plus(' ').plus(contact[i].secondName),
-                                phone = contact[i].phone,
-                                letter = null
-                            )
-                        )
-                        currentLetter = getFirstLetter(contact[i + 1])
-                        contacts.add(
-                            AdapterModel(
-                                isContact = false,
-                                name = null,
-                                phone = null,
-                                letter = currentLetter
-                            )
-                        )
-                    } else { //if next letter is the same - add next record
-                        contacts.add(
-                            AdapterModel(
-                                isContact = true,
-                                name = contact[i].firstName.plus(' ').plus(contact[i].secondName),
-                                phone = contact[i].phone,
-                                letter = null
-                            )
-                        )
-                    }
                 }
-                //adding the last contact
-                contacts.add(
-                    AdapterModel(
-                        isContact = true,
-                        name = contact[contact.size - 1].firstName.plus(' ').plus(contact[contact.size - 1].secondName),
-                        phone = contact[contact.size - 1].phone,
-                        letter = null
-                    )
-                )
-            }
+            )
         }
         notifyDataSetChanged()
     }
@@ -166,7 +111,4 @@ class ContactListAdapter internal constructor(private val context: Context) :
         return viewType
     }
 
-    companion object {
-        const val EXTRA_PHONE = "com.example.contacts.presentation.listofcontacts.FNAME"
-    }
 }
