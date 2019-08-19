@@ -1,10 +1,12 @@
 package com.example.contacts.presentation.onecontact
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
@@ -16,8 +18,10 @@ import android.view.MenuItem
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.example.contacts.R
 import com.example.contacts.databinding.ActivityOnecontactBinding
@@ -35,6 +39,10 @@ class OneContactActivity : AppCompatActivity() {
 
     private var currentPhotoPath: String = ""
 
+    private val observer: Observer<String> = Observer{
+        Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+    }
+
     @SuppressLint("InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +56,11 @@ class OneContactActivity : AppCompatActivity() {
             checkExtras(bundle)
         }
 
-        image_view.setOnClickListener { showBottomSheet() }
+        image_view.setOnClickListener {
+            if (requestPermission()) {
+                showBottomSheet()
+            }
+        }
 
         //toolbar
         one_contact_toolbar.title = getString(R.string.edit)
@@ -133,9 +145,12 @@ class OneContactActivity : AppCompatActivity() {
         builder.setTitle(R.string.delete)
             .setMessage(R.string.are_you_sure)
             .setPositiveButton(R.string.delete) { dialogInterface, _ ->
-                viewModel.deleteContact()
-                dialogInterface.dismiss()
-                finish()
+                viewModel.deleteContact().observe(this, Observer {
+                    Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                    dialogInterface.dismiss()
+                    finish()
+                })
+
             }
             .setNegativeButton(R.string.cancel) { dialogInterface, _ ->
                 dialogInterface.dismiss()
@@ -147,7 +162,7 @@ class OneContactActivity : AppCompatActivity() {
         val phone = bundle.getString(EXTRA_PHONE).toString()
         if (phone.isNotEmpty()) { //if this contact exist
             val flag = viewModel.getByPhone(phone)
-            flag.observe(this, androidx.lifecycle.Observer {
+            flag.observe(this, Observer {
                 //when image path is ready -> glide into image_view
                 if (it) {
                     currentPhotoPath = viewModel.imageText.get().toString()
@@ -182,6 +197,24 @@ class OneContactActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+
+    private fun requestPermission(): Boolean {
+        val permissionWrite = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        val permissionRead = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+
+        if (permissionRead != PackageManager.PERMISSION_GRANTED ||
+            permissionWrite != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
+                REQUEST_PERMISSION
+            )
+            return false
+        }
+        return true
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -226,7 +259,7 @@ class OneContactActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.action_save -> {
                 if (phone_edit_text.text.isEmpty()) {
-                    Toast.makeText(this, R.string.phone_is_empty, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, R.string.phone_is_empty, Toast.LENGTH_SHORT).show()
                 } else {
                     if (phone_edit_text.text.length < MIN_PHONE_LENGTH) { //phone number should be at least 3 symbols
                         phone_edit_text.text.clear()
@@ -236,12 +269,12 @@ class OneContactActivity : AppCompatActivity() {
                         //updateContact info
                         if (viewModel.isExistingContact.get()) {
                             viewModel.imageText.set(currentPhotoPath)
-                            viewModel.updateContact()
+                            viewModel.updateContact().observe(this, observer)
                             finish()
                         } else {
                             //send data for addContact
                             viewModel.imageText.set(currentPhotoPath)
-                            viewModel.addContact()
+                            viewModel.addContact().observe(this, observer)
                             finish()
                         }
                     }
@@ -264,6 +297,9 @@ class OneContactActivity : AppCompatActivity() {
                 putExtra(EXTRA_PHONE, phone)
             }
             context.startActivity(intent)
+        }
+        fun start(context: Context){
+            context.startActivity(Intent(context, OneContactActivity::class.java))
         }
 
     }

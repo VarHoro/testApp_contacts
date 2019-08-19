@@ -2,30 +2,41 @@ package com.example.contacts.domain
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.Transformations
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 class ContactsInteractorImpl(private val dataSource: ContactsDataSource) : ContactsInteractor {
 
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
-    private lateinit var observer: Observer<List<ContactModel>>
-
-    override fun addContact(contact: ContactModel) {
+    override fun addContact(contact: ContactModel): LiveData<Result<String>> {
+        val result = MutableLiveData<Result<String>>()
         scope.launch {
-            dataSource.insert(contact)
+            try {
+                dataSource.insert(contact)
+                result.postValue(Result.success(contact.firstName.plus(' ').plus(contact.secondName)))
+            } catch (e: IOException) {
+                result.postValue(Result.failure(e))
+            }
         }
+        return result
     }
 
-    override fun updateContact(contact: ContactModel) {
+    override fun updateContact(contact: ContactModel): LiveData<Result<Unit>> {
+        val result = MutableLiveData<Result<Unit>>()
         scope.launch {
-            dataSource.update(contact)
+            try {
+                dataSource.update(contact)
+                result.postValue(Result.success(Unit))
+            } catch (e: IOException) {
+                result.postValue(Result.failure(e))
+            }
         }
+        return result
     }
 
     override fun getData(): LiveData<List<ContactModel>> {
@@ -40,13 +51,20 @@ class ContactsInteractorImpl(private val dataSource: ContactsDataSource) : Conta
         return contact
     }
 
-    override fun deleteContact(contact: ContactModel) {
+    override fun deleteContact(contact: ContactModel): LiveData<Result<Unit>> {
+        val result = MutableLiveData<Result<Unit>>()
         scope.launch {
-            dataSource.delete(contact)
+            try {
+                dataSource.delete(contact)
+                result.postValue(Result.success(Unit))
+            } catch (e: IOException) {
+                result.postValue(Result.failure(e))
+            }
         }
+        return result
     }
 
     override fun getBySearch(searchQuery: String?): LiveData<List<ContactModel>> {
-        return dataSource.searchContacts(searchQuery.toString())
+        return if (searchQuery == null) dataSource.getData() else dataSource.searchContacts(searchQuery)
     }
 }

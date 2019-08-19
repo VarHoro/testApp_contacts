@@ -6,7 +6,7 @@ import androidx.lifecycle.*
 import com.example.contacts.domain.ContactModel
 import com.example.contacts.domain.ContactsInteractor
 
-class OneContactViewModel(private val interactor: ContactsInteractor ) : ViewModel(){
+class OneContactViewModel(private val interactor: ContactsInteractor) : ViewModel() {
 
     val isExistingContact = ObservableBoolean(false)
     val imageText = ObservableField("")
@@ -17,13 +17,10 @@ class OneContactViewModel(private val interactor: ContactsInteractor ) : ViewMod
     val ringtoneText = ObservableField("Default")
 
     private lateinit var contactModel: LiveData<ContactModel>
-    private lateinit var observer: Observer<ContactModel>
 
     fun getByPhone(getPhone: String): LiveData<Boolean> {
-        val liveData = MutableLiveData<Boolean>()
-        liveData.postValue(false)
         contactModel = interactor.getByPhone(getPhone)
-        observer = Observer { contactModel ->
+        return Transformations.map(contactModel) { contactModel ->
             imageText.set(contactModel.image)
             firstNameText.set(contactModel.firstName)
             secondNameText.set(contactModel.secondName)
@@ -31,31 +28,53 @@ class OneContactViewModel(private val interactor: ContactsInteractor ) : ViewMod
             noteText.set(contactModel.note)
             ringtoneText.set(contactModel.ringtone)
             isExistingContact.set(true)
-            liveData.postValue(true)
-            dataReceived()
+            true
         }
-        contactModel.observeForever(observer)
-        return liveData
     }
 
-    fun addContact() {
-        val contact = ContactModel(
-            firstName = firstNameText.get(),
-            secondName = secondNameText.get(),
-            phone = phoneText.get().toString(),
-            ringtone = ringtoneText.get(),
-            image = imageText.get(),
-            note = noteText.get()
-        )
-        interactor.addContact(contact)
+    fun addContact(): LiveData<String> {
+        return Transformations.map(interactor.addContact(setContactModel())) {
+            it.fold(
+                { value -> String.format(SAVED, value) },
+                { exception -> "Error: ${exception.message}" }
+            )
+        }
     }
 
-    private fun dataReceived() {
-        contactModel.removeObserver(observer)
+    fun updateContact(): LiveData<String> {
+        val contact = setContactModel()
+        return if (contactModel.value != contact) {
+            Transformations.map(interactor.updateContact(contact)) {
+                it.fold(
+                    { UPDATED },
+                    { exception -> "Error: ${exception.message}" }
+                )
+            }
+        } else {
+            val str = MutableLiveData<String>()
+            str.postValue(UNCHANGED)
+            str
+        }
     }
 
-    fun updateContact() {
-        val contact = ContactModel(
+    fun deleteContact(): LiveData<String> {
+        val model: ContactModel? = contactModel.value
+        return if (model != null) {
+            Transformations.map(interactor.deleteContact(model)) {
+                it.fold(
+                    { DELETED },
+                    { exception -> "Error: ${exception.message}" }
+                )
+            }
+        } else {
+            val str = MutableLiveData<String>()
+            str.postValue(PROBLEM)
+            str
+        }
+    }
+
+    private fun setContactModel(): ContactModel {
+        return ContactModel(
             image = imageText.get(),
             firstName = firstNameText.get(),
             secondName = secondNameText.get(),
@@ -63,15 +82,13 @@ class OneContactViewModel(private val interactor: ContactsInteractor ) : ViewMod
             note = noteText.get(),
             ringtone = ringtoneText.get()
         )
-        if (contactModel.value != contact) {
-            interactor.updateContact(contact)
-        }
     }
 
-    fun deleteContact() {
-        val model: ContactModel? = contactModel.value
-        if (model != null) {
-            interactor.deleteContact(model)
-        }
+    companion object {
+        const val SAVED = "Contact saved: %s!"
+        const val UPDATED = "Changes are saved!"
+        const val UNCHANGED = "There were no changes"
+        const val DELETED = "Contact was deleted!"
+        const val PROBLEM = "Contact not found"
     }
 }

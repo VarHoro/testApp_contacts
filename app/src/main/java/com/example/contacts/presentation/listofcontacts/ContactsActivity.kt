@@ -32,8 +32,6 @@ class ContactsActivity : AppCompatActivity() {
         val binding = DataBindingUtil.setContentView<ActivityContactsBinding>(this, R.layout.activity_contacts)
         binding.lifecycleOwner = this
 
-        requestPermission()
-
         //toolbar
         setSupportActionBar(toolbar_contacts)
 
@@ -59,25 +57,11 @@ class ContactsActivity : AppCompatActivity() {
         OneContactActivity.start(this, phone)
     }
 
-    private fun requestPermission() {
-        val permissionWrite = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        val permissionRead = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-
-        if (permissionRead != PackageManager.PERMISSION_GRANTED ||
-            permissionWrite != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
-                OneContactActivity.REQUEST_PERMISSION
-            )
-        }
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_add ->
-                startActivity(Intent(this@ContactsActivity, OneContactActivity::class.java))
+                OneContactActivity.start(this)
         }
 
         return super.onOptionsItemSelected(item)
