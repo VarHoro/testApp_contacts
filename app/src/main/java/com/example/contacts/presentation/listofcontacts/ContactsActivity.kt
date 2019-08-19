@@ -44,8 +44,11 @@ class ContactsActivity : AppCompatActivity() {
 
         //updateContact adapter if contacts changed
         viewModel.allContacts.observe(this, Observer { contacts ->
-            if (contacts != null) {
+            if (contacts != null && contacts.isNotEmpty()) {
                 adapter.setContacts(contacts)
+                no_contacts_text_view.visibility = View.GONE
+            } else {
+                no_contacts_text_view.visibility = View.VISIBLE
             }
         })
     }

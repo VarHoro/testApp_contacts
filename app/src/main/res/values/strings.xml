@@ -33,5 +33,6 @@
     <string name="text_here">Text here</string>
     <string name="take_a_photo">  Take a photo</string>
     <string name="choose_photo">Choose photo</string>
+    <string name="no_text">You don\'t have any contacts right now.</string>
 
 </resources>
